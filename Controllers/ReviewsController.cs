@@ -31,7 +31,7 @@ namespace BakeryApi.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("")]
+        [HttpGet("", Name = "GetReviews")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public ActionResult<ReviewDTO[]> GetReviews(string code)
         {
@@ -53,7 +53,7 @@ namespace BakeryApi.Controllers
             }
         }
 
-        [HttpPost("")]
+        [HttpPost("", Name = "CreateReview")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public ActionResult<ReviewDTO> CreateReview(string code, ReviewDTO review)
         {

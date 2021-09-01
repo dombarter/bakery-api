@@ -69,7 +69,7 @@ namespace BakeryApi.Controllers
             }
         }
 
-        [HttpPost("")]
+        [HttpPost("", Name = "CreateProduct")]
         public ActionResult<ProductDTO> CreateProduct(ProductDTO product)
         {
             try
@@ -100,7 +100,7 @@ namespace BakeryApi.Controllers
             }
         }
         
-        [HttpGet("{code}")]
+        [HttpGet("{code}", Name = "GetProduct")]
         [HttpHead("{code}")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public ActionResult<ProductDTO> GetProduct(string code)
@@ -108,7 +108,9 @@ namespace BakeryApi.Controllers
             try
             {
                 var product = repository.GetProduct(code, includeReviews: false);
-                return mapper.Map<ProductDTO>(product);
+                var mappedProduct = mapper.Map<ProductDTO>(product);
+                mappedProduct.Links = CreateLinksForProduct(mappedProduct.ProductCode);
+                return mappedProduct;
             }
             catch (Exception ex)
             {
@@ -121,7 +123,7 @@ namespace BakeryApi.Controllers
             }
         }
 
-        [HttpDelete("{code}")]
+        [HttpDelete("{code}", Name = "DeleteProduct")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public IActionResult DeleteProduct(string code)
         {
@@ -141,7 +143,7 @@ namespace BakeryApi.Controllers
             }
         }
 
-        [HttpPut("{code}")]
+        [HttpPut("{code}", Name = "UpdateProduct")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public ActionResult<ProductDTO> UpdateProduct(string code, ProductDTO newProduct)
         {
@@ -175,7 +177,7 @@ namespace BakeryApi.Controllers
             }
         }
 
-        [HttpPatch("{code}/{quantity:int}")]
+        [HttpPatch("{code}/{quantity:int}", Name = "SubmitStockCheck")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public ActionResult<ProductDTO> SubmitStockCheck(string code, int quantity)
         {
@@ -234,5 +236,24 @@ namespace BakeryApi.Controllers
             }
         }
 
+        private List<LinkDTO> CreateLinksForProduct(string code)
+        {
+            var links = new List<LinkDTO>
+            {
+                new LinkDTO(linkGenerator.GetUriByAction(HttpContext, "GetProduct", values: new { code }),
+                "self",
+                "GET"),
+                new LinkDTO(linkGenerator.GetUriByAction(HttpContext, "GetReviews", "Reviews", values: new { code }),
+                "product_reviews",
+                "GET"),
+                new LinkDTO(linkGenerator.GetUriByAction(HttpContext, "DeleteProduct", values: new { code }),
+                "delete_product",
+                "DELETE"),
+                new LinkDTO(linkGenerator.GetUriByAction(HttpContext, "UpdateProduct", values: new { code }),
+                "update_product",
+                "PUT"),
+            };
+            return links;
+        }
     }
 }

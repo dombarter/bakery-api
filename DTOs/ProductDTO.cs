@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace BakeryApi.DTOs
 {
@@ -30,6 +29,9 @@ namespace BakeryApi.DTOs
         [Required]
         [Range(0, int.MaxValue)]
         public int? Quantity { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<LinkDTO> Links { get; set; }
 
     }
 }
