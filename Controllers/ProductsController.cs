@@ -3,6 +3,8 @@ using BakeryApi.Data;
 using BakeryApi.Domain;
 using BakeryApi.DTOs;
 using BakeryApi.Filters;
+using BakeryApi.Helpers;
+using BakeryApi.ResourceParameters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BakeryApi.Controllers
@@ -31,13 +34,27 @@ namespace BakeryApi.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("")]
-        public ActionResult<ProductDTO[]> GetProducts(bool includeOutOfStock = true, float minPrice = 0, float maxPrice = float.MaxValue)
+        [HttpGet("", Name = "GetProducts")]
+        public ActionResult<ProductDTO[]> GetProducts([FromQuery]ProductsResourceParameters parameters)
         {
             try
             {
-                Product[] products = repository.GetProducts(includeOutOfStock, minPrice, maxPrice);
-                
+                PagedList<Product> products = repository.GetProducts(parameters);
+
+                var previousPageLink = products.HasPrevious ? CreateProductsResourceUri(parameters, ResourceUriType.PreviousPage) : null;
+                var nextPageLink = products.HasNext ? CreateProductsResourceUri(parameters, ResourceUriType.NextPage) : null;
+                var paginationMetadata = new
+                {
+                    totalCount = products.TotalCount,
+                    pageSize = products.PageSize,
+                    currentPage = products.CurrentPage,
+                    totalPages = products.TotalPages,
+                    previousPageLink,
+                    nextPageLink
+                };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+
                 //Response.Headers.Add("X-Total-Count", products.Count().ToString());
                 return mapper.Map<ProductDTO[]>(products);
             }
@@ -84,6 +101,7 @@ namespace BakeryApi.Controllers
         }
         
         [HttpGet("{code}")]
+        [HttpHead("{code}")]
         [TypeFilter(typeof(CheckExistingProductFilter))]
         public ActionResult<ProductDTO> GetProduct(string code)
         {
@@ -179,6 +197,40 @@ namespace BakeryApi.Controllers
                     message = "Something went wrong, please try again.",
                     error = ex.ToString()
                 });
+            }
+        }
+
+        private string CreateProductsResourceUri(ProductsResourceParameters parameters, ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetProducts", new
+                    {
+                        pageNumber = parameters.PageNumber - 1,
+                        pageSize = parameters.PageSize,
+                        includeOutOfStock = parameters.IncludeOutOfStock,
+                        minPrice = parameters.MinPrice,
+                        maxPrice = parameters.MaxPrice
+                    });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetProducts", new
+                    {
+                        pageNumber = parameters.PageNumber + 1,
+                        pageSize = parameters.PageSize,
+                        includeOutOfStock = parameters.IncludeOutOfStock,
+                        minPrice = parameters.MinPrice,
+                        maxPrice = parameters.MaxPrice
+                    });
+                default:
+                    return Url.Link("GetProducts", new
+                    {
+                        pageNumber = parameters.PageNumber,
+                        pageSize = parameters.PageSize,
+                        includeOutOfStock = parameters.IncludeOutOfStock,
+                        minPrice = parameters.MinPrice,
+                        maxPrice = parameters.MaxPrice
+                    });
             }
         }
 

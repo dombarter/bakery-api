@@ -1,4 +1,6 @@
 ﻿using BakeryApi.Domain;
+using BakeryApi.Helpers;
+using BakeryApi.ResourceParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ namespace BakeryApi.Data
 {
     public interface IProductRepository
     {
-        public Product[] GetProducts(bool includeOutOfStock, float minPrice, float maxPrice);
+        public PagedList<Product> GetProducts(ProductsResourceParameters parameters);
         public Product GetProduct(string code, bool includeReviews);
         public Product CreateProduct(Product product);
         public Product UpdateProduct(Product product);

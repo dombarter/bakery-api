@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using BakeryApi.Domain;
+using BakeryApi.Helpers;
+using BakeryApi.ResourceParameters;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -49,20 +51,21 @@ namespace BakeryApi.Data
                     .FirstOrDefault(p => p.ProductCode == code.ToUpper());
         }
 
-        public Product[] GetProducts(bool includeOutOfStock, float minPrice, float maxPrice)
+        public PagedList<Product> GetProducts(ProductsResourceParameters parameters)
         {
-            return context.Products
-                .Where(x => x.Price >= minPrice)
-                .Where(x => x.Price <= maxPrice)
-                .Where(x => includeOutOfStock ? true : x.Quantity > 0)
-                .ToArray();
+            var collection = context.Products
+                .Where(x => x.Price >= parameters.MinPrice)
+                .Where(x => x.Price <= parameters.MaxPrice)
+                .Where(x => parameters.IncludeOutOfStock ? true : x.Quantity > 0)
+                .OrderBy(x => x.Name);
+
+            return PagedList<Product>.Create(collection, parameters.PageNumber, parameters.PageSize);
         }
 
         public Review[] GetReviews(string code)
         {
             var product = GetProduct(code, includeReviews: true);
             var reviews = product.Reviews;
-
 
             return GetProduct(code, includeReviews: true).Reviews.ToArray();
         }
