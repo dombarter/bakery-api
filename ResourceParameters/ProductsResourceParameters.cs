@@ -13,8 +13,8 @@ namespace BakeryApi.ResourceParameters
 
         public float MaxPrice { get; set; } = float.MaxValue;
 
-        private const int DEFAULT_PAGE_NUMBER = 1;
-        private int pageNumber = DEFAULT_PAGE_NUMBER;
+        private const int DefaultPageNumber = 1;
+        private int pageNumber = DefaultPageNumber;
         public int PageNumber
         {
             get
@@ -24,15 +24,15 @@ namespace BakeryApi.ResourceParameters
             set
             {
                 if (pageNumber < 1)
-                    pageNumber = DEFAULT_PAGE_NUMBER;
+                    pageNumber = DefaultPageNumber;
                 else
                     pageNumber = value;
             }
         }
 
-        private const int MAX_PAGE_SIZE = 10;
-        private const int DEFAULT_PAGE_SIZE = 3;
-        private int pageSize = DEFAULT_PAGE_SIZE;
+        private const int MaxPageSize = 25;
+        private const int DefaultPageSize = 3;
+        private int pageSize = DefaultPageSize;
         public int PageSize
         {
             get
@@ -41,10 +41,10 @@ namespace BakeryApi.ResourceParameters
             }
             set
             {
-                if (value > MAX_PAGE_SIZE)
-                    pageSize = MAX_PAGE_SIZE;
+                if (value > MaxPageSize)
+                    pageSize = MaxPageSize;
                 else if (value < 1)
-                    pageSize = DEFAULT_PAGE_SIZE;
+                    pageSize = DefaultPageSize;
                 else
                     pageSize = value;
             }
