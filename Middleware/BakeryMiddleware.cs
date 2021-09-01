@@ -20,10 +20,9 @@ namespace BakeryApi.Middleware
 
         public Task Invoke(HttpContext context)
         {
-            var url = context.Request.Path;
-            logger.LogInformation($"URL visited: {url}");
+            logger.LogInformation($"URL visited: {context.Request.Path}; Method: {context.Request.Method};");
 
-            if (url.ToString().ToLower().Contains("goldenticket"))
+            if (context.Request.Path.ToString().ToLower().Contains("goldenticket"))
             {
                 return context.Response.WriteAsync(
                     "You found a golden ticket! Have some free items from our bakery!"

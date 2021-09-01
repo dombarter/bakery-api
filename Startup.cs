@@ -56,6 +56,8 @@ namespace BakeryApi
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseResponseCaching();
+
             app.UseRouting();
 
             app.UseAuthorization();

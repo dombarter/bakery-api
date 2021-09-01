@@ -22,6 +22,7 @@ namespace BakeryApi.Controllers
 
         [HttpGet("name")]
         [ServiceFilter(typeof(BakeryFilter))]
+        [ResponseCache(Duration = 1000)]
         public ActionResult<string> GetBakeryName()
         {
             return options.Value.BakeryName;
@@ -29,6 +30,7 @@ namespace BakeryApi.Controllers
 
         [HttpGet("hours")]
         [TypeFilter(typeof(AddHeaderFilter), Arguments = new object[] { "bread-of-the-day", "Sourdough"})]
+        [ResponseCache(Duration = 1000)]
         public ActionResult<OpeningHours> GetBakeryOpeningHours()
         {
             return options.Value.BakeryOpeningHours;

@@ -25,6 +25,8 @@ namespace BakeryApi.Services
             {
                 builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
             }));
+
+            services.AddResponseCaching();
         }
     }
 }
